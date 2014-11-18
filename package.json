@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-deploy-redis-index-adapter",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "directories": {
     "doc": "doc",
     "test": "tests"
