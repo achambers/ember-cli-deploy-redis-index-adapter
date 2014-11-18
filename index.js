@@ -1,5 +1,10 @@
 'use strict';
 
-module.exports = {
-  name: 'ember-cli-deploy-redis-index-adapter'
-};
+var RedisIndexAdapter = require('./lib/redis-index-adapter');
+
+function EmberCLIDeployRedisIndexAdapter() {
+  this.name = 'ember-cli-deploy-redis-index-adapter';
+  this.adapter = RedisIndexAdapter;
+}
+
+module.exports = EmberCLIDeployRedisIndexAdapter;
