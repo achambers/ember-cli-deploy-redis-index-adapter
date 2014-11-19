@@ -78,164 +78,91 @@ describe('redis-index-adpater', function(){
   });
 
   describe('#upload', function() {
-    it('proceeds if index is uploaded and returns the key', function() {
-      adapterOptions._uploadIfNotInVersionList = succeeded;
-      adapterOptions._updateVersionList        = succeeded;
-      adapterOptions._trimVersionList          = succeeded;
+    it('rejects if the version is already uploaded', function() {
+      mockClient.set('aaa', 'data');
+      mockClient.lpush(adapterOptions.appId, 'aaa');
 
       var subject = new Adapter(adapterOptions);
+
+      subject._key = function() {
+        return 'aaa';
+      };
 
       return subject.upload('data')
-        .then(function(key) {
-          assert.ok(/[0-9a-f]{10}/.test(key));
-        }, function(error) {
-          assert.ok(false, 'Should have resolved upload');
-        });
-    });
-
-    it('rejects if index is not uploaded', function() {
-      adapterOptions._uploadIfNotInVersionList = failed;
-      adapterOptions._updateVersionList        = succeeded;
-      adapterOptions._trimVersionList          = succeeded;
-
-      var subject = new Adapter(adapterOptions);
-
-      return subject.upload('data')
-        .then(function() {
-          assert.ok(false, 'Should have rejected upload');
-        }, function(error) {
-          assert.equal(error, 'failed');
-        });
-    });
-
-    it('rejects if version list is not updated', function() {
-      adapterOptions._uploadIfNotInVersionList = succeeded;
-      adapterOptions._updateVersionList        = failed;
-      adapterOptions._trimVersionList          = succeeded;
-
-      var subject = new Adapter(adapterOptions);
-
-      return subject.upload('data')
-        .then(function() {
-          assert.ok(false, 'Should have rejected upload');
-        }, function(error) {
-          assert.equal(error, 'failed');
-        });
-    });
-
-    it('rejects if version list is not trimmed', function() {
-      adapterOptions._uploadIfNotInVersionList = succeeded;
-      adapterOptions._updateVersionList        = succeeded;
-      adapterOptions._trimVersionList          = failed;
-
-      var subject = new Adapter(adapterOptions);
-
-      return subject.upload('data')
-        .then(function() {
-          assert.ok(false, 'Should have rejected upload');
-        }, function(error) {
-          assert.equal(error, 'failed');
-        });
-    });
-  });
-
-  describe('#_key', function() {
-    it('returns the current git hash', function() {
-      var subject = new Adapter(adapterOptions);
-
-      var sha = subject._key();
-
-      assert.ok(/[0-9a-f]{10}/.test(sha), 'Should return hash');
-    });
-  });
-
-  describe('#_uploadIfNotInVersionList', function() {
-    it('resolves on a successful upload', function() {
-      var subject = new Adapter(adapterOptions);
-
-      return subject._uploadIfNotInVersionList('new-key', 'value')
-        .then(function() {
-          assert.equal(mockClient.key, 'my-app:new-key');
-          assert.equal(mockClient.value, 'value');
-        }, function() {
-          assert.ok(false, 'Should have uploaded successfully');
-        });
-    });
-
-    it('rejects if a version already exists for the current git sha', function() {
-      var subject = new Adapter(adapterOptions);
-
-      return subject._uploadIfNotInVersionList('key', 'value')
         .then(function() {
           assert.ok(false, 'Should have rejected due to version already being uploaded');
         }, function(error) {
-          assert.equal(error.message, 'Version for key [key] has already been uploaded\n');
-        });
-    });
-  });
-
-  describe('#_updateVersionList', function() {
-    it('resolves on a successful update', function() {
-      var subject = new Adapter(adapterOptions);
-
-      return subject._updateVersionList('new-key')
-        .then(function() {
-          assert.equal(mockClient.appId, 'my-app');
-          assert.equal(mockClient.key, 'new-key');
-        }, function() {
-          assert.ok(false, 'Should have updated versions successfully');
+          assert.equal(error.message, 'Version for key [aaa] has already been uploaded\n');
         });
     });
 
-    it('rejects if a version already exists for the current git sha', function() {
+    it('maintains the version list to be at the specified number of versions', function() {
+      for(var i = 0; i < 4; i++) {
+        mockClient.lpush(adapterOptions.appId, 'version-' + i);
+      }
       var subject = new Adapter(adapterOptions);
 
-      return subject._updateVersionList('key')
+      subject._key = function() {
+        return 'aaa';
+      };
+
+      assert.equal(mockClient.get(adapterOptions.appId).indexOf('aaa'), -1);
+
+      return subject.upload('data')
         .then(function() {
-          assert.ok(false, 'Should have rejected due to version already being in version list');
+          assert.equal(mockClient.get(adapterOptions.appId).length, 4);
+          assert.equal(mockClient.get(adapterOptions.appId)[0], 'aaa');
         }, function(error) {
-          assert.equal(error.message, 'Version for key [key] has already been uploaded\n');
+          assert.ok(false, 'Should have resolved');
+        });
+    });
+
+    it('returns the key for which the data was uploaded', function() {
+      var subject = new Adapter(adapterOptions);
+
+      subject._key = function() {
+        return 'aaa';
+      };
+
+      return subject.upload('data')
+        .then(function(key) {
+          assert.equal(key, 'aaa');
+        }, function() {
+          assert.ok(false, 'Should have resolved with upload key');
         });
     });
   });
 
-  describe('#_trimVersions', function() {
-    it('resolves on a successful call', function() {
-      adapterOptions.versionCount = 5;
-
+  describe('#setCurrent', function() {
+    it('rejects if the version has not been previously uploaded', function() {
       var subject = new Adapter(adapterOptions);
 
-      return subject._trimVersionList()
+      return subject.setCurrent('aaa')
         .then(function() {
-          assert.equal(mockClient.appId, 'my-app');
-          assert.equal(mockClient.min, 0);
-          assert.equal(mockClient.max, 4);
-        }, function() {
-          assert.ok(false, 'Should have trimmed the version list successfully');
-        });
-    });
-  });
-
-  describe('#_listVersions', function() {
-    it('returns the number of versions specified', function() {
-      var subject = new Adapter(adapterOptions);
-
-      return subject._listVersions(3)
-        .then(function(result) {
-          assert.equal(result.length, 3);
-        }, function() {
-          assert.ok(false, 'Should have returned specified number of versions');
+          assert.ok(false, 'Should have rejected');
+        }, function(error) {
+          assert.equal(error.message, 'Version for key [aaa] does not exist\n');
+          var currentKey = mockClient.get(adapterOptions.appId + ':current');
+          assert.equal(currentKey, null);
         });
     });
 
-    it('returns the default number of versions when count not specified', function() {
+    it('sets the specified version as the current version', function() {
       var subject = new Adapter(adapterOptions);
 
-      return subject._listVersions()
-        .then(function(result) {
-          assert.equal(result.length, 4);
-        }, function() {
-          assert.ok(false, 'Should have returned specified number of versions');
+      subject._key = function() {
+        return 'aaa';
+      };
+
+      return subject.upload('data')
+        .then(function(key) {
+          return subject.setCurrent(key)
+            .then(function() {
+              var currentKey = mockClient.get(adapterOptions.appId + ':current');
+              assert.equal(currentKey, key);
+            }, function() {
+              assert.ok(false, 'Should have resolved');
+            });
         });
     });
   });
