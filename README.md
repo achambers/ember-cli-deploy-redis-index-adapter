@@ -56,6 +56,12 @@ Secondly, the function will keep track of the versions of `data` that have been 
 
 Finally, this function will trim the list of uploaded versions to a limit defined by `versionCount`.
 
+### \#setCurrent(key)
+
+This function will set a key called `appId:current` to be the version key specified.  This will only happen if the version key specified is a valid version that has previously been uploaded.
+
+The server that serves the index.html from Redis should look for the index.html file stored under `appId:current` if not query parameter has been passed in, specifying another version.
+
 ## Installation
 
 From within your [Ember CLI][2] application, run:
@@ -74,6 +80,7 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
+- [v0.0.2][5]
 - [v0.0.1][4]
 
 
@@ -81,3 +88,4 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 [2]: http://ember-cli.com "Ember CLI"
 [3]: https://github.com/achambers/ember-cli-deploy#adapters "ember-cli-deploy adapters"
 [4]: https://github.com/achambers/ember-cli-deploy-redis-index-adapter/releases/tag/v0.0.1 "Release v0.0.1"
+[5]: https://github.com/achambers/ember-cli-deploy-redis-index-adapter/releases/tag/v0.0.2 "Release v0.0.2"
