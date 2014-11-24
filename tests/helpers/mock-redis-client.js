@@ -2,29 +2,34 @@ var CoreObject = require('core-object');
 var CLIPromise = require('ember-cli/lib/ext/promise');
 
 module.exports = CoreObject.extend({
+  init: function() {
+    this.store = {};
+  },
+
   lpush: function(appId, key) {
-    this.appId = appId;
-    this.key = key;
-    return CLIPromise.resolve();
+    this.store[appId] = this.store[appId] || [];
+    var length = this.store[appId].unshift(key);
+
+    return CLIPromise.resolve(length);
   },
   lrange: function(appId, start, end) {
-    this.appId = appId;
-    this.start = start;
-    this.end = end;
+    var values = this.store[appId] || [];
 
-    var result = ['key', 'a', 'b', 'c', 'd'].slice(start, end + 1);
+    var result = values.slice(start, end + 1);
 
     return CLIPromise.resolve(result);
   },
   ltrim: function(appId, min, max) {
-    this.appId = appId;
-    this.min = min;
-    this.max = max;
-    return CLIPromise.resolve();
+    var values = this.store[appId] || [];
+
+    this.store[appId] = values.slice(min, max + 1);
+    return CLIPromise.resolve('OK');
   },
   set: function(key, value) {
-    this.key = key;
-    this.value = value;
-    return CLIPromise.resolve();
+    this.store[key] = value;
+    return CLIPromise.resolve('OK');
+  },
+  get: function(key) {
+    return this.store[key];
   }
 });
