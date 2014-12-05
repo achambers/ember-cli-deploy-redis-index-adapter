@@ -175,7 +175,7 @@ describe('redis-index-adpater', function(){
       mockClient.lpush(adapterOptions.appId, 'bbb');
 
       return subject.listVersions().then(function(versions){
-        assert.deepEqual(versions, [ { sha1: 'bbb' }, { sha1: 'aaa' } ]);
+        assert.deepEqual(versions, [ { key: 'bbb' }, { key: 'aaa' } ]);
       });
     });
   });
