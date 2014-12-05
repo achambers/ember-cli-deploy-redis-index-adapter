@@ -22,11 +22,11 @@ describe('redis-index-adpater', function(){
 
     succeeded = function() {
       return CLIPromise.resolve('succeeded');
-    }
+    };
 
     failed = function() {
       return CLIPromise.reject('failed');
-    }
+    };
   });
 
   describe('initialization', function() {
@@ -166,4 +166,18 @@ describe('redis-index-adpater', function(){
         });
     });
   });
+
+  describe('#listVersions', function(){
+    it('lists all versions pushed', function(){
+      var subject = new Adapter(adapterOptions);
+
+      mockClient.lpush(adapterOptions.appId, 'aaa');
+      mockClient.lpush(adapterOptions.appId, 'bbb');
+
+      return subject.listVersions().then(function(versions){
+        assert.deepEqual(versions, [ { key: 'bbb' }, { key: 'aaa' } ]);
+      });
+    });
+  });
+
 });
