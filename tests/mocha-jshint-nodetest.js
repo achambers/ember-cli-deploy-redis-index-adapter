@@ -1,4 +1,4 @@
-var mochaJSHint = require('mocha-jshint');
+import mochaJSHint from 'ember-qunit';
 
 mochaJSHint([
   'lib'

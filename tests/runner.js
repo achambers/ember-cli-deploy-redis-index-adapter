@@ -1,7 +1,7 @@
-'use strict';
-
-var glob = require('glob');
-var Mocha = require('mocha');
+import {
+  glob,
+  Mocha
+} from 'ember-qunit';
 
 var mocha = new Mocha({
   reporter: 'spec'

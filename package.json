@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-deploy-redis-index-adapter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -12,7 +12,7 @@
   },
   "repository": "https://github.com/achambers/ember-cli-deploy-redis-index-adapter",
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 0.12.0"
   },
   "author": "",
   "license": "MIT",
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "core-object": "0.0.2",
-    "gitty": "^3.1.1",
+    "gitty": "^3.2.0",
     "romis": "0.0.5"
   }
 }
