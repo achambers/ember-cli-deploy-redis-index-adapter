@@ -1,5 +1,7 @@
-var CoreObject = require('core-object');
-var CLIPromise = require('ember-cli/lib/ext/promise');
+import {
+  CoreObject,
+  CLIPromise
+} from 'ember-qunit';
 
 module.exports = CoreObject.extend({
   init: function() {

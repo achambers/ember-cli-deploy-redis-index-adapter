@@ -1,9 +1,12 @@
-'use strict';
-
-var assert     = require('ember-cli/tests/helpers/assert');
-var CLIPromise = require('ember-cli/lib/ext/promise');
-var MockClient = require('../helpers/mock-redis-client');
-var Adapter    = require('../../lib/redis-index-adapter');
+import {
+  assert,
+  CLIPromise,
+  MockClient,
+  Adapter,
+  describe,
+  beforeEach,
+  it
+} from 'ember-qunit';
 
 describe('redis-index-adpater', function(){
   var mockClient;
